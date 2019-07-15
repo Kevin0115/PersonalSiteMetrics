@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Accordion, Card, ListGroup, Button } from 'react-bootstrap';
+import moment from 'moment';
 import '../App.css';
 
 class Body extends Component {
@@ -39,9 +40,32 @@ class Body extends Component {
 
   renderEvents(events) {
     return events.map((item, index) => {
+      const newDate = moment(item.timestamp).format("MMMM Do YYYY, h:mmA");
+      const eventArray = item.eventType.split('=');
+      let eventType = '';
+      let eventTarget = '';
+      
+      switch(eventArray[0]) {
+        case 'sessionStart':
+          eventType = 'Started Session';
+          break;
+        case 'linkVisit':
+          eventType = 'Viewed ';
+          break;
+        case 'navTo':
+          eventType = 'Navigated to ';
+          break;
+        default:
+          eventType = 'Unknown Event';
+      }
+
+      if (eventArray[1]) {
+        eventTarget = eventArray[1];
+      }
+
       return(
         <ListGroup.Item key={index}>
-          <p className="event-desc">{item.eventType}: {item.timestamp}</p>
+          <p className="event-desc">{eventType + eventTarget}: {newDate}</p>
         </ListGroup.Item> 
       );
     })
