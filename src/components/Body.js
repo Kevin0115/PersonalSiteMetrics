@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, Form } from 'react-bootstrap';
 import moment from 'moment';
 import '../App.css';
 
@@ -7,8 +7,16 @@ class Body extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      json: null
+      json: null,
+      auth: false,
+      username: '',
+      password: '',
+      authRes: null,
+      authMessage: '',
     }
+    this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    this.handleUsernameChange = this.handleUsernameChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
@@ -70,15 +78,82 @@ class Body extends Component {
       );
     })
   }
+
+  // To make login persistent, use localStorage/sessionStorage
+  handleSubmit(e) {
+    e.preventDefault();
+
+    const authObj = {
+      username: this.state.username,
+      password: this.state.password
+    }
+
+    fetch('https://ec2.kevnchoi.com/analytics/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(authObj)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.status === 'Authenticated') {
+        this.setState({
+          auth: true,
+          authMessage: ''
+        });
+      } else {
+        this.setState({
+          authMessage: res.status
+        });
+      }
+    })
+    .catch(err => console.log('Error: ' + err));
+  }
+
+  handlePasswordChange(e) {
+    this.setState({password: e.target.value});
+  }
+
+  handleUsernameChange(e) {
+    this.setState({username: e.target.value});
+  }
+
+  renderAuth() {
+    return(
+      <Form onSubmit={this.handleSubmit}>
+        <Form.Group controlId="formBasicEmail">
+          <Form.Control placeholder="Username" onChange={this.handleUsernameChange}/>
+        </Form.Group>
+        <Form.Group controlId="formBasicPassword">
+          <Form.Control type="password" placeholder="Password" onChange={this.handlePasswordChange}/>
+          <Form.Text className="text-muted">
+            {this.state.authMessage}
+          </Form.Text>
+        </Form.Group>
+        <Button variant="outline-primary" type="submit">
+          Submit
+        </Button>
+      </Form>
+    );
+  }
     
   render() {
-    return(
-      <div className="body-content">
-        <Accordion>
-          {this.renderMetricsCards()}
-        </Accordion>
-      </div>
-    );
+    if (this.state.auth) {
+      return(
+        <div className="body-content">
+          <Accordion>
+            {this.renderMetricsCards()}
+          </Accordion>
+        </div>
+      );
+    } else {
+      return(
+        <div className="body-content">
+          {this.renderAuth()}
+        </div>
+      );
+    }
   }
 }
 
