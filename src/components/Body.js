@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button, Form } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab } from 'react-bootstrap';
 import moment from 'moment';
+import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines, YAxis, XAxis } from 'react-vis';
 import '../App.css';
 
 class Body extends Component {
@@ -13,6 +14,7 @@ class Body extends Component {
       password: '',
       authRes: null,
       authMessage: '',
+      data: [],
     }
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handleUsernameChange = this.handleUsernameChange.bind(this);
@@ -23,7 +25,44 @@ class Body extends Component {
     fetch('https://ec2.kevnchoi.com/analytics')
     .then(res => res.json())
     .then(res => this.setState({json: res}))
+    .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
+  }
+
+  processMetrics() {
+    const { json } = this.state;
+    const data = [];
+    for (let i = 0; i < json.length; i++) {
+      const events = json[i].events;
+      for (let j = 0; j < events.length; j++) {
+        const eventType = events[j].eventType;
+        const eventName = eventType.substring(eventType.indexOf('=') + 1);
+        this.insertEvent(data, eventName);
+      }
+    }
+    data.sort((a, b) => b.y - a.y);
+    this.setState({data: data});
+  }
+
+  insertEvent(data, eventType) {
+    if (eventType === 'sessionStart') { return; }
+    if (data.length === 0) {
+      data.push({
+        x: eventType,
+        y: 1
+      })
+    } else {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].x === eventType) {
+          data[i].y = data[i].y + 1;
+          return;
+        }
+      }
+      data.push({
+        x: eventType,
+        y: 1
+      })
+    }
   }
 
   renderMetricsCards() {
@@ -44,6 +83,21 @@ class Body extends Component {
         </Card>
       )
     })
+  }
+
+  renderChart() {
+    if (!this.state.json) {
+      return null;
+    }
+    return (
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={400}>
+        <VerticalGridLines />
+        <HorizontalGridLines />
+        <YAxis />
+        <XAxis tickLabelAngle={-50}/>
+        <VerticalBarSeries data={this.state.data} />
+      </XYPlot>
+    );
   }
 
   renderEvents(events) {
@@ -142,9 +196,24 @@ class Body extends Component {
     if (this.state.auth) {
       return(
         <div className="body-content">
-          <Accordion>
-            {this.renderMetricsCards()}
-          </Accordion>
+          <Card>
+            <Card.Body>
+              <Tabs defaultActiveKey="events">
+                <Tab eventKey="events" title="Events">
+                  <div className="accordion">
+                    <Accordion>
+                      {this.renderMetricsCards()}
+                    </Accordion>
+                  </div>
+                </Tab>
+                <Tab eventKey="charts" title="Charts">
+                  <div className="charts">
+                    {this.renderChart()}
+                  </div>
+                </Tab>
+              </Tabs>
+            </Card.Body>
+          </Card>
         </div>
       );
     } else {

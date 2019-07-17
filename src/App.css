@@ -23,6 +23,22 @@
   flex-wrap: wrap;
 }
 
+.accordion, .charts {
+  margin-top: 8px;
+}
+
+.charts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  width: 60vw;
+}
+
+.nav {
+  margin: 0 2px;
+}
+
 .event-desc {
   margin: 0;
 }
