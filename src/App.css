@@ -23,6 +23,16 @@
   flex-wrap: wrap;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time {
+  font-size: 12px;
+}
+
 .accordion, .charts {
   margin-top: 8px;
 }

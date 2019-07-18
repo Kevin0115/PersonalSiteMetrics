@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab } from 'react-bootstrap';
 import moment from 'moment';
-import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines, YAxis, XAxis } from 'react-vis';
+import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
+  YAxis, XAxis, Hint } from 'react-vis';
 import '../App.css';
 
 class Body extends Component {
@@ -9,10 +10,8 @@ class Body extends Component {
     super(props);
     this.state = {
       json: null,
-      auth: false,
       username: '',
       password: '',
-      authRes: null,
       authMessage: '',
       data: [],
     }
@@ -72,10 +71,11 @@ class Body extends Component {
     return this.state.json.map((item, index) => {
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
-          <Card.Header>
-            <Accordion.Toggle as={Button} variant="link" eventKey={index.toString()}>
+          <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
+            <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="outline-secondary" eventKey={index.toString()}>
               Session ID: {item.sessionId}
             </Accordion.Toggle>
+            <div className="time">{moment(item.events[0].timestamp).format("MMMM Do YYYY, h:mmA")}</div>
           </Card.Header>
           <Accordion.Collapse eventKey={index.toString()}>
             <ListGroup>{this.renderEvents(item.events)}</ListGroup>
@@ -152,10 +152,8 @@ class Body extends Component {
     .then(res => res.json())
     .then(res => {
       if (res.status === 'Authenticated') {
-        this.setState({
-          auth: true,
-          authMessage: ''
-        });
+        this.setState({ authMessage: '' });
+        localStorage.setItem('auth', true);
       } else {
         this.setState({
           authMessage: res.status
@@ -193,7 +191,7 @@ class Body extends Component {
   }
     
   render() {
-    if (this.state.auth) {
+    if (localStorage.getItem('auth')) {
       return(
         <div className="body-content">
           <Card>
