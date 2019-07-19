@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab, Alert, Badge } from 'react-bootstrap';
 import moment from 'moment';
 import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
-  YAxis, XAxis, Hint } from 'react-vis';
+  YAxis, XAxis } from 'react-vis';
 import '../App.css';
 
 class Body extends Component {
@@ -10,10 +10,12 @@ class Body extends Component {
     super(props);
     this.state = {
       json: null,
+      totalVisits: 0,
       username: '',
       password: '',
       authMessage: '',
       data: [],
+      vWidth: 0,
     }
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handleUsernameChange = this.handleUsernameChange.bind(this);
@@ -21,9 +23,11 @@ class Body extends Component {
   }
 
   componentDidMount() {
+    this.setState({vWidth: window.innerWidth});
+    console.log(window.innerWidth);
     fetch('https://ec2.kevnchoi.com/analytics')
     .then(res => res.json())
-    .then(res => this.setState({json: res}))
+    .then(res => this.setState({ json: res, totalVisits: res.length }))
     .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
   }
@@ -69,13 +73,14 @@ class Body extends Component {
       return null;
     }
     return this.state.json.map((item, index) => {
+      console.log(item.events[0]);
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
-            <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="outline-secondary" eventKey={index.toString()}>
-              Session ID: {item.sessionId}
+            <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()}>
+              {moment(item.events[0].timestamp).format("MM/DD/YY, h:mmA")}
             </Accordion.Toggle>
-            <div className="time">{moment(item.events[0].timestamp).format("MMMM Do YYYY, h:mmA")}</div>
+            <div className="time">{item.sessionId}</div>
           </Card.Header>
           <Accordion.Collapse eventKey={index.toString()}>
             <ListGroup>{this.renderEvents(item.events)}</ListGroup>
@@ -90,7 +95,7 @@ class Body extends Component {
       return null;
     }
     return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={400}>
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
         <VerticalGridLines />
         <HorizontalGridLines />
         <YAxis />
@@ -199,6 +204,11 @@ class Body extends Component {
               <Tabs defaultActiveKey="events">
                 <Tab eventKey="events" title="Events">
                   <div className="accordion">
+                    <h4>
+                      <Badge variant="secondary">
+                        Total Visits: {this.state.totalVisits}
+                      </Badge>
+                    </h4>
                     <Accordion>
                       {this.renderMetricsCards()}
                     </Accordion>
@@ -206,6 +216,9 @@ class Body extends Component {
                 </Tab>
                 <Tab eventKey="charts" title="Charts">
                   <div className="charts">
+                    <Card.Title>
+                      Visits by Event Type
+                    </Card.Title>
                     {this.renderChart()}
                   </div>
                 </Tab>
