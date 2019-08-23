@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab, Alert, Badge } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab, Badge } from 'react-bootstrap';
 import moment from 'moment';
 import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
   YAxis, XAxis } from 'react-vis';
@@ -78,6 +78,7 @@ class Body extends Component {
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
             <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()}>
+              <Badge variant="primary" className="event-count">{item.events.length}</Badge>
               {moment(item.events[0].timestamp).format("MM/DD/YY, h:mmA")}
             </Accordion.Toggle>
             <div className="time">{item.sessionId}</div>
