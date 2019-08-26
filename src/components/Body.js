@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab, Badge } from 'react-bootstrap';
 import moment from 'moment';
 import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
-  YAxis, XAxis } from 'react-vis';
+  YAxis, XAxis, LineMarkSeries } from 'react-vis';
 import '../App.css';
 
 class Body extends Component {
@@ -15,6 +15,8 @@ class Body extends Component {
       password: '',
       authMessage: '',
       data: [],
+      visitWeek: [],
+      visitMonth: [],
       vWidth: 0,
       reverseOrder: false,
     }
@@ -35,8 +37,18 @@ class Body extends Component {
 
   processMetrics() {
     const { json } = this.state;
+
     const data = [];
+    const visitWeek = [];
+    const visitMonth = [];
+
     for (let i = 0; i < json.length; i++) {
+
+      const currWeek = moment(json[i].events[0].timestamp).format("W/YY");
+      const currMonth = moment(json[i].events[0].timestamp).format("M/YY");
+      this.insertVisitTime(visitWeek, currWeek);
+      this.insertVisitTime(visitMonth, currMonth);
+
       const events = json[i].events;
       for (let j = 0; j < events.length; j++) {
         const eventType = events[j].eventType;
@@ -44,8 +56,13 @@ class Body extends Component {
         this.insertEvent(data, eventName);
       }
     }
+
     data.sort((a, b) => b.y - a.y);
-    this.setState({data: data});
+    this.setState({
+      data: data,
+      visitWeek: visitWeek.reverse(),
+      visitMonth: visitMonth.reverse()
+    });
   }
 
   insertEvent(data, eventType) {
@@ -64,6 +81,26 @@ class Body extends Component {
       }
       data.push({
         x: eventType,
+        y: 1
+      })
+    }
+  }
+
+  insertVisitTime(array, time) {
+    if (array.length === 0) {
+      array.push({
+        x: time,
+        y: 1
+      })
+    } else {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i].x === time) {
+          array[i].y = array[i].y + 1;
+          return
+        }
+      }
+      array.push({
+        x: time,
         y: 1
       })
     }
@@ -91,7 +128,7 @@ class Body extends Component {
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
             <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()}>
               <Badge variant="primary" className="event-count">{item.events.length}</Badge>
-              {moment(item.events[0].timestamp).format("M/D/YY, h:mmA")}
+              {moment(item.events[0].timestamp).format("M/D/YY LT")}
             </Accordion.Toggle>
             <div className="time">{item.sessionId}</div>
           </Card.Header>
@@ -114,6 +151,36 @@ class Body extends Component {
         <YAxis />
         <XAxis tickLabelAngle={-50}/>
         <VerticalBarSeries data={this.state.data} />
+      </XYPlot>
+    );
+  }
+
+  renderVisitsByMonth() {
+    if (!this.state.json) {
+      return null;
+    }
+    return (
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+        <VerticalGridLines />
+        <HorizontalGridLines />
+        <YAxis />
+        <XAxis />
+        <LineMarkSeries data={this.state.visitMonth} />
+      </XYPlot>
+    );
+  }
+
+  renderVisitsByWeek() {
+    if (!this.state.json) {
+      return null;
+    }
+    return (
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+        <VerticalGridLines />
+        <HorizontalGridLines />
+        <YAxis />
+        <XAxis tickLabelAngle={-50}/>
+        <LineMarkSeries data={this.state.visitWeek} />
       </XYPlot>
     );
   }
@@ -242,6 +309,14 @@ class Body extends Component {
                       Visits by Event Type
                     </Card.Title>
                     {this.renderChart()}
+                    <Card.Title>
+                      Visits by Month
+                    </Card.Title>
+                    {this.renderVisitsByMonth()}
+                    <Card.Title>
+                      Visits by Week
+                    </Card.Title>
+                    {this.renderVisitsByWeek()}
                   </div>
                 </Tab>
               </Tabs>
