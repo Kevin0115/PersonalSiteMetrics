@@ -16,18 +16,19 @@ class Body extends Component {
       authMessage: '',
       data: [],
       vWidth: 0,
+      reverseOrder: false,
     }
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
     this.handleUsernameChange = this.handleUsernameChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.reverseOrder = this.reverseOrder.bind(this);
   }
 
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
-    console.log(window.innerWidth);
     fetch('https://ec2.kevnchoi.com/analytics')
     .then(res => res.json())
-    .then(res => this.setState({ json: res, totalVisits: res.length }))
+    .then(res => this.setState({ json: res.reverse(), totalVisits: res.length }))
     .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
   }
@@ -68,12 +69,23 @@ class Body extends Component {
     }
   }
 
+  reverseOrder() {
+    this.setState({
+      json: this.state.json.reverse(),
+      reverseOrder: !this.state.reverseOrder
+    });
+  }
+
+  renderReverseButton() {
+    return this.state.reverseOrder ?
+      ( <div>&#x21a5;</div> ) : ( <div>&#x21a7;</div> )
+  }
+
   renderMetricsCards() {
     if (!this.state.json) {
       return null;
     }
     return this.state.json.map((item, index) => {
-      console.log(item.events[0]);
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
@@ -205,10 +217,19 @@ class Body extends Component {
               <Tabs defaultActiveKey="events">
                 <Tab eventKey="events" title="Events">
                   <div className="accordion">
-                    <h4>
+                    <h4 className="event-header">
                       <Badge variant="secondary">
                         Total Visits: {this.state.totalVisits}
                       </Badge>
+                      <div className="reverse">
+                        <Button
+                          variant="outline-primary"
+                          style={{ height: 30, width: 30, padding: 0 }}
+                          onClick={() => this.reverseOrder()}
+                        >
+                          {this.renderReverseButton()}
+                        </Button>
+                      </div>
                     </h4>
                     <Accordion>
                       {this.renderMetricsCards()}

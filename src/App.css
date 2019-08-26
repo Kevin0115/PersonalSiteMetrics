@@ -37,11 +37,21 @@
   margin-right: 8px;
 }
 
+.event-header {
+  display: flex;
+  flex-direction: row;
+}
+
 .accordion, .charts {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.reverse {
+  display: flex;
+  margin-left: 8px;
 }
 
 .charts {
