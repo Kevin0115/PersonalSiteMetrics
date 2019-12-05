@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/metrics/static/css/main.13d53d4c.chunk.css",
-    "main.js": "/metrics/static/js/main.cd2cd0e3.chunk.js",
-    "main.js.map": "/metrics/static/js/main.cd2cd0e3.chunk.js.map",
+    "main.js": "/metrics/static/js/main.8e2b48da.chunk.js",
+    "main.js.map": "/metrics/static/js/main.8e2b48da.chunk.js.map",
     "runtime~main.js": "/metrics/static/js/runtime~main.d5cbce51.js",
     "runtime~main.js.map": "/metrics/static/js/runtime~main.d5cbce51.js.map",
     "static/js/2.1d893eac.chunk.js": "/metrics/static/js/2.1d893eac.chunk.js",
     "static/js/2.1d893eac.chunk.js.map": "/metrics/static/js/2.1d893eac.chunk.js.map",
     "index.html": "/metrics/index.html",
-    "precache-manifest.6b19d96e01aeb862bbd582dc896147ba.js": "/metrics/precache-manifest.6b19d96e01aeb862bbd582dc896147ba.js",
+    "precache-manifest.52756b6c125e94af093c9f24456a2237.js": "/metrics/precache-manifest.52756b6c125e94af093c9f24456a2237.js",
     "service-worker.js": "/metrics/service-worker.js",
     "static/css/main.13d53d4c.chunk.css.map": "/metrics/static/css/main.13d53d4c.chunk.css.map"
   }
