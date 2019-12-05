@@ -41,7 +41,7 @@ exports.get_metric_session_id = async (req, res) => {
   }
 }
 
-exports.post_session = async (req, res) => {
+exports.post_event = async (req, res) => {
   const session_id = req.body.session_id; // Param because front-end localStorage item
   const event_type = req.body.event_type;
   const ts = moment.utc(); // Generate on the spot **UTC**
@@ -53,7 +53,7 @@ exports.post_session = async (req, res) => {
 
   try {
     const insert = (await connection.query(insert_query)).rows;
-    res.send(insert_query);
+    res.send(insert_query.values);
   } catch (e) {
     console.error(e.detail);
     res.send(e);
