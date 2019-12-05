@@ -54,7 +54,7 @@
   margin-left: 8px;
 }
 
-.charts {
+.charts, .links {
   /* height: 55vh; */
   width: 60vw;
 }
@@ -65,4 +65,13 @@
 
 .event-desc {
   margin: 0;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  height: 20vh;
+  align-items: center;
+  padding: 32px;
+  justify-content: space-between;
 }

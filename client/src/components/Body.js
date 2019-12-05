@@ -37,6 +37,10 @@ class Body extends Component {
 
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
+    this.fetchSessionIds();
+  }
+
+  fetchSessionIds() {
     fetch('https://ec2.kevnchoi.com/metric')
     // fetch('http://localhost:8080/metric')
     .then(res => res.json())
@@ -155,6 +159,12 @@ class Body extends Component {
   renderReverseButton() {
     return this.state.reverseOrder ?
       ( <div>&#x21a5;</div> ) : ( <div>&#x21a7;</div> )
+  }
+
+  renderRefreshButton() {
+    return (
+      <div>&#8635;</div>
+    );
   }
 
   renderMetricsCards() {
@@ -340,6 +350,13 @@ class Body extends Component {
                         >
                           {this.renderReverseButton()}
                         </Button>
+                        <Button
+                          variant="outline-primary"
+                          style={{ height: 30, width: 30, padding: 0 }}
+                          onClick={() => this.fetchSessionIds()}
+                        >
+                          {this.renderRefreshButton()}
+                        </Button>
                       </div>
                     </h4>
                     <Accordion>
@@ -361,6 +378,13 @@ class Body extends Component {
                       Visits by Week
                     </Card.Title>
                     {this.renderVisitsByWeek()}
+                  </div>
+                </Tab>
+                <Tab eventKey="links" title="Links">
+                  <div className="links">
+                    <a href="https://kevinchoi.dev" rel="noopener noreferrer" target="_blank">Site</a>
+                    <a href="https://github.com/Kevin0115/metrics" rel="noopener noreferrer" target="_blank">Github</a>
+                    <a href="https://customer.elephantsql.com/instance" rel="noopener noreferrer" target="_blank">Database</a>
                   </div>
                 </Tab>
               </Tabs>
