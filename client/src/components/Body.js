@@ -167,7 +167,7 @@ class Body extends Component {
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
             <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()} onClick={() => this.fetchMetricsForId(item.session_id)}>
               {/* <Badge variant="primary" className="event-count">{}</Badge> */}
-              {moment(item.ts).format('YYYY-MM-DD hh:mm A')}
+              {moment(item.ts).utcOffset(-8).format('YYYY-MM-DD hh:mm A')}
             </Accordion.Toggle>
             <div className="time">{item.session_id}</div>
           </Card.Header>
@@ -186,7 +186,7 @@ class Body extends Component {
     const { events } = this.state.metricsById[session_id];
 
     return events.map((item, index) => {
-      const newDate = moment(item.ts).format("YYYY-MM-DD hh:mm A");
+      const newDate = moment(item.ts).utcOffset(-8).format("YYYY-MM-DD hh:mm A");
       const eventArray = item.event_type.split('=');
       let eventType = '';
       let eventTarget = '';
