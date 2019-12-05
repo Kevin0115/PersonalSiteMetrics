@@ -37,8 +37,8 @@ class Body extends Component {
 
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
-    // fetch('https://ec2.kevnchoi.com/metric')
-    fetch('http://localhost:8080/metric')
+    fetch('https://ec2.kevnchoi.com/metric')
+    // fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
       this.setState({
@@ -55,8 +55,8 @@ class Body extends Component {
     if (id in this.state.metricsById) {
       return;
     }
-    // fetch('https://ec2.kevnchoi.com/metric/' + id)
-    fetch('http://localhost:8080/metric/' + id)
+    fetch('https://ec2.kevnchoi.com/metric/' + id)
+    // fetch('http://localhost:8080/metric/' + id)
     .then(res => res.json())
     .then(json => {
       // Make K-V pair
