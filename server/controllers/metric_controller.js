@@ -10,7 +10,7 @@ exports.get_session_ids = async (req, res) => {
               where event_type = 'sessionStart'
               order by session_id
             ) t
-            order by ts`
+            order by ts desc`
   }
 
   try {

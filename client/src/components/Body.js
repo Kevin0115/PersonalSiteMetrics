@@ -10,12 +10,13 @@ class Body extends Component {
     super(props);
     this.state = {
       // NEW
+      totalVisits: 0,
       sessionIds: [],
       metricsById: {},
+      reverseOrder: false,
 
       // OLD
       json: null,
-      totalVisits: 0,
       username: '',
       password: '',
       authMessage: '',
@@ -23,20 +24,23 @@ class Body extends Component {
       visitWeek: [],
       visitMonth: [],
       vWidth: 0,
-      reverseOrder: false,
     }
-    this.handlePasswordChange = this.handlePasswordChange.bind(this);
-    this.handleUsernameChange = this.handleUsernameChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.reverseOrder = this.reverseOrder.bind(this);
+    this.renderEvents = this.renderEvents.bind(this);
+    this.renderMetricsCards = this.renderMetricsCards.bind(this);
+
+    // Auth stuff
+    // this.handlePasswordChange = this.handlePasswordChange.bind(this);
+    // this.handleUsernameChange = this.handleUsernameChange.bind(this);
+    // this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
-    fetch('https://ec2.kevnchoi.com/metric')
+    // fetch('https://ec2.kevnchoi.com/metric')
+    fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
-      console.log(json);
       this.setState({
         sessionIds: json,
         totalVisits: json.length
@@ -47,18 +51,21 @@ class Body extends Component {
   }
 
   fetchMetricsForId(id) {
-    fetch('https://ec2.kevnchoi.com/metric/' + id)
+    // 'Caching' for this session
+    if (id in this.state.metricsById) {
+      return;
+    }
+    // fetch('https://ec2.kevnchoi.com/metric/' + id)
+    fetch('http://localhost:8080/metric/' + id)
     .then(res => res.json())
     .then(json => {
-      console.log(json);
       // Make K-V pair
       const obj = {
-        session_id: id,
         events: json
       };
       // Get current state
       const { metricsById } = this.state;
-      metricsById.id = obj;
+      metricsById[id] = obj;
       this.setState({
         metricsById: metricsById
       });
@@ -67,80 +74,80 @@ class Body extends Component {
     .catch(err => console.log('Error: ' + err));
   }
 
-  processMetrics() {
-    const { json } = this.state;
+  // processMetrics() {
+  //   const { json } = this.state;
 
-    const data = [];
-    const visitWeek = [];
-    const visitMonth = [];
+  //   const data = [];
+  //   const visitWeek = [];
+  //   const visitMonth = [];
 
-    for (let i = 0; i < json.length; i++) {
+  //   for (let i = 0; i < json.length; i++) {
 
-      const currWeek = moment(json[i].events[0].timestamp).format("W/YY");
-      const currMonth = moment(json[i].events[0].timestamp).format("M/YY");
-      this.insertVisitTime(visitWeek, currWeek);
-      this.insertVisitTime(visitMonth, currMonth);
+  //     const currWeek = moment(json[i].events[0].timestamp).format("W/YY");
+  //     const currMonth = moment(json[i].events[0].timestamp).format("M/YY");
+  //     this.insertVisitTime(visitWeek, currWeek);
+  //     this.insertVisitTime(visitMonth, currMonth);
 
-      const events = json[i].events;
-      for (let j = 0; j < events.length; j++) {
-        const eventType = events[j].eventType;
-        const eventName = eventType.substring(eventType.indexOf('=') + 1);
-        this.insertEvent(data, eventName);
-      }
-    }
+  //     const events = json[i].events;
+  //     for (let j = 0; j < events.length; j++) {
+  //       const eventType = events[j].eventType;
+  //       const eventName = eventType.substring(eventType.indexOf('=') + 1);
+  //       this.insertEvent(data, eventName);
+  //     }
+  //   }
 
-    data.sort((a, b) => b.y - a.y);
-    this.setState({
-      data: data,
-      visitWeek: visitWeek.reverse(),
-      visitMonth: visitMonth.reverse()
-    });
-  }
+  //   data.sort((a, b) => b.y - a.y);
+  //   this.setState({
+  //     data: data,
+  //     visitWeek: visitWeek.reverse(),
+  //     visitMonth: visitMonth.reverse()
+  //   });
+  // }
 
-  insertEvent(data, eventType) {
-    if (eventType === 'sessionStart') { return; }
-    if (data.length === 0) {
-      data.push({
-        x: eventType,
-        y: 1
-      })
-    } else {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].x === eventType) {
-          data[i].y = data[i].y + 1;
-          return;
-        }
-      }
-      data.push({
-        x: eventType,
-        y: 1
-      })
-    }
-  }
+  // insertEvent(data, eventType) {
+  //   if (eventType === 'sessionStart') { return; }
+  //   if (data.length === 0) {
+  //     data.push({
+  //       x: eventType,
+  //       y: 1
+  //     })
+  //   } else {
+  //     for (let i = 0; i < data.length; i++) {
+  //       if (data[i].x === eventType) {
+  //         data[i].y = data[i].y + 1;
+  //         return;
+  //       }
+  //     }
+  //     data.push({
+  //       x: eventType,
+  //       y: 1
+  //     })
+  //   }
+  // }
 
-  insertVisitTime(array, time) {
-    if (array.length === 0) {
-      array.push({
-        x: time,
-        y: 1
-      })
-    } else {
-      for (let i = 0; i < array.length; i++) {
-        if (array[i].x === time) {
-          array[i].y = array[i].y + 1;
-          return
-        }
-      }
-      array.push({
-        x: time,
-        y: 1
-      })
-    }
-  }
+  // insertVisitTime(array, time) {
+  //   if (array.length === 0) {
+  //     array.push({
+  //       x: time,
+  //       y: 1
+  //     })
+  //   } else {
+  //     for (let i = 0; i < array.length; i++) {
+  //       if (array[i].x === time) {
+  //         array[i].y = array[i].y + 1;
+  //         return
+  //       }
+  //     }
+  //     array.push({
+  //       x: time,
+  //       y: 1
+  //     })
+  //   }
+  // }
 
   reverseOrder() {
     this.setState({
-      json: this.state.json.reverse(),
+      sessionIds: this.state.sessionIds.reverse(),
       reverseOrder: !this.state.reverseOrder
     });
   }
@@ -165,10 +172,48 @@ class Body extends Component {
             <div className="time">{item.session_id}</div>
           </Card.Header>
           <Accordion.Collapse eventKey={index.toString()}>
-            <ListGroup>{this.renderEvents([])}</ListGroup>
+            <ListGroup>{this.renderEvents(item.session_id)}</ListGroup>
           </Accordion.Collapse>
         </Card>
       )
+    })
+  }
+
+  renderEvents(session_id) {
+    if (!this.state.metricsById[session_id]) {
+      return;
+    }
+    const { events } = this.state.metricsById[session_id];
+
+    return events.map((item, index) => {
+      const newDate = moment(item.ts).format("YYYY-MM-DD hh:mm A");
+      const eventArray = item.event_type.split('=');
+      let eventType = '';
+      let eventTarget = '';
+      
+      switch(eventArray[0]) {
+        case 'sessionStart':
+          eventType = 'Started Session';
+          break;
+        case 'linkVisit':
+          eventType = 'Viewed ';
+          break;
+        case 'navTo':
+          eventType = 'Navigated to ';
+          break;
+        default:
+          eventType = 'Unknown Event';
+      }
+
+      if (eventArray[1]) {
+        eventTarget = eventArray[1];
+      }
+
+      return(
+        <ListGroup.Item key={index}>
+          <p className="event-desc">{eventType + eventTarget}: {newDate}</p>
+        </ListGroup.Item> 
+      );
     })
   }
 
@@ -217,98 +262,65 @@ class Body extends Component {
     );
   }
 
-  renderEvents(events) {
-    return events.map((item, index) => {
-      const newDate = moment(item.timestamp).format("MMMM Do YYYY, h:mmA");
-      const eventArray = item.eventType.split('=');
-      let eventType = '';
-      let eventTarget = '';
-      
-      switch(eventArray[0]) {
-        case 'sessionStart':
-          eventType = 'Started Session';
-          break;
-        case 'linkVisit':
-          eventType = 'Viewed ';
-          break;
-        case 'navTo':
-          eventType = 'Navigated to ';
-          break;
-        default:
-          eventType = 'Unknown Event';
-      }
-
-      if (eventArray[1]) {
-        eventTarget = eventArray[1];
-      }
-
-      return(
-        <ListGroup.Item key={index}>
-          <p className="event-desc">{eventType + eventTarget}: {newDate}</p>
-        </ListGroup.Item> 
-      );
-    })
-  }
-
   // To make login persistent, use localStorage/sessionStorage
-  handleSubmit(e) {
-    e.preventDefault();
+  // handleSubmit(e) {
+  //   e.preventDefault();
 
-    const authObj = {
-      username: this.state.username,
-      password: this.state.password
-    }
+  //   const authObj = {
+  //     username: this.state.username,
+  //     password: this.state.password
+  //   }
 
-    fetch('https://ec2.kevnchoi.com/analytics/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(authObj)
-    })
-    .then(res => res.json())
-    .then(res => {
-      if (res.status === 'Authenticated') {
-        this.setState({ authMessage: '' });
-        localStorage.setItem('auth', true);
-      } else {
-        this.setState({
-          authMessage: res.status
-        });
-      }
-    })
-    .catch(err => console.log('Error: ' + err));
-  }
+  //   fetch('https://ec2.kevnchoi.com/analytics/login', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify(authObj)
+  //   })
+  //   .then(res => res.json())
+  //   .then(res => {
+  //     if (res.status === 'Authenticated') {
+  //       this.setState({ authMessage: '' });
+  //       localStorage.setItem('auth', true);
+  //     } else {
+  //       this.setState({
+  //         authMessage: res.status
+  //       });
+  //     }
+  //   })
+  //   .catch(err => console.log('Error: ' + err));
+  // }
 
-  handlePasswordChange(e) {
-    this.setState({password: e.target.value});
-  }
+  // handlePasswordChange(e) {
+  //   this.setState({password: e.target.value});
+  // }
 
-  handleUsernameChange(e) {
-    this.setState({username: e.target.value});
-  }
+  // handleUsernameChange(e) {
+  //   this.setState({username: e.target.value});
+  // }
 
-  renderAuth() {
-    return(
-      <Form onSubmit={this.handleSubmit}>
-        <Form.Group controlId="formBasicEmail">
-          <Form.Control placeholder="Username" onChange={this.handleUsernameChange}/>
-        </Form.Group>
-        <Form.Group controlId="formBasicPassword">
-          <Form.Control type="password" placeholder="Password" onChange={this.handlePasswordChange}/>
-          <Form.Text className="text-muted">
-            {this.state.authMessage}
-          </Form.Text>
-        </Form.Group>
-        <Button variant="outline-primary" type="submit">
-          Submit
-        </Button>
-      </Form>
-    );
-  }
+  // renderAuth() {
+  //   return(
+  //     <Form onSubmit={this.handleSubmit}>
+  //       <Form.Group controlId="formBasicEmail">
+  //         <Form.Control placeholder="Username" onChange={this.handleUsernameChange}/>
+  //       </Form.Group>
+  //       <Form.Group controlId="formBasicPassword">
+  //         <Form.Control type="password" placeholder="Password" onChange={this.handlePasswordChange}/>
+  //         <Form.Text className="text-muted">
+  //           {this.state.authMessage}
+  //         </Form.Text>
+  //       </Form.Group>
+  //       <Button variant="outline-primary" type="submit">
+  //         Submit
+  //       </Button>
+  //     </Form>
+  //   );
+  // }
     
   render() {
-    if (localStorage.getItem('auth')) {
+    // if (localStorage.getItem('auth')) {
       return(
         <div className="body-content">
           <Card>
@@ -356,13 +368,13 @@ class Body extends Component {
           </Card>
         </div>
       );
-    } else {
-      return(
-        <div className="body-content">
-          {this.renderAuth()}
-        </div>
-      );
-    }
+    // } else {
+    //   return(
+    //     <div className="body-content">
+    //       {this.renderAuth()}
+    //     </div>
+    //   );
+    // }
   }
 }
 
