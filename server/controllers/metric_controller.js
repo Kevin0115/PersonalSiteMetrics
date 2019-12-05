@@ -3,9 +3,14 @@ const moment = require('moment');
 
 exports.get_session_ids = async (req, res) => {
   const session_query = {
-    text: `select distinct session_id, ts
-            from metric
-            order by ts desc`
+    text: `select session_id, ts
+            from (
+              select distinct on (session_id) session_id, ts
+              from metric
+              where event_type = 'sessionStart'
+              order by session_id
+            ) t
+            order by ts`
   }
 
   try {

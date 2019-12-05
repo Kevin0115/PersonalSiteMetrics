@@ -9,6 +9,11 @@ class Body extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      // NEW
+      sessionIds: [],
+      metricsById: {},
+
+      // OLD
       json: null,
       totalVisits: 0,
       username: '',
@@ -28,10 +33,37 @@ class Body extends Component {
 
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
-    fetch('https://ec2.kevnchoi.com/analytics')
+    fetch('https://ec2.kevnchoi.com/metric')
     .then(res => res.json())
-    .then(res => this.setState({ json: res.reverse(), totalVisits: res.length }))
-    .then(() => this.processMetrics())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        sessionIds: json,
+        totalVisits: json.length
+      });
+    })
+    // .then(() => this.processMetrics())
+    .catch(err => console.log('Error: ' + err));
+  }
+
+  fetchMetricsForId(id) {
+    fetch('https://ec2.kevnchoi.com/metric/' + id)
+    .then(res => res.json())
+    .then(json => {
+      console.log(json);
+      // Make K-V pair
+      const obj = {
+        session_id: id,
+        events: json
+      };
+      // Get current state
+      const { metricsById } = this.state;
+      metricsById.id = obj;
+      this.setState({
+        metricsById: metricsById
+      });
+    })
+    // .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
   }
 
@@ -119,21 +151,21 @@ class Body extends Component {
   }
 
   renderMetricsCards() {
-    if (!this.state.json) {
+    if (!this.state.sessionIds) {
       return null;
     }
-    return this.state.json.map((item, index) => {
+    return this.state.sessionIds.map((item, index) => {
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
-            <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()}>
-              <Badge variant="primary" className="event-count">{item.events.length}</Badge>
-              {moment(item.events[0].timestamp).format("M/D/YY LT")}
+            <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()} onClick={() => this.fetchMetricsForId(item.session_id)}>
+              {/* <Badge variant="primary" className="event-count">{}</Badge> */}
+              {moment(item.ts).format('YYYY-MM-DD hh:mm A')}
             </Accordion.Toggle>
-            <div className="time">{item.sessionId}</div>
+            <div className="time">{item.session_id}</div>
           </Card.Header>
           <Accordion.Collapse eventKey={index.toString()}>
-            <ListGroup>{this.renderEvents(item.events)}</ListGroup>
+            <ListGroup>{this.renderEvents([])}</ListGroup>
           </Accordion.Collapse>
         </Card>
       )
