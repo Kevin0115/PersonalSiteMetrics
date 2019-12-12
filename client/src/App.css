@@ -29,8 +29,8 @@
   align-items: center;
 }
 
-.time {
-  font-size: 12px;
+.session-id {
+  font-size: 10px;
 }
 
 .event-count {
@@ -42,11 +42,12 @@
   flex-direction: row;
 }
 
-.accordion, .charts {
+.event-list, .charts {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-top:8px;
 }
 
 .reverse {
@@ -70,8 +71,12 @@
 .links {
   display: flex;
   flex-direction: column;
-  height: 20vh;
+  height: 28vh;
   align-items: center;
   padding: 32px;
   justify-content: space-between;
 }
+
+/* .link-item {
+  margin-bottom: 8px;
+} */

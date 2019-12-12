@@ -5,6 +5,21 @@ import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
   YAxis, XAxis, LineMarkSeries } from 'react-vis';
 import '../App.css';
 
+const externalLinks = [
+  {
+    link: 'https://kevinchoi.dev',
+    label: 'Site'
+  },
+  {
+    link: 'https://github.com/Kevin0115/metrics',
+    label: 'Github'
+  },
+  {
+    link: 'https://customer.elephantsql.com/instance',
+    label: 'Database'
+  }
+];
+
 class Body extends Component {
   constructor(props) {
     super(props);
@@ -47,7 +62,8 @@ class Body extends Component {
     .then(json => {
       this.setState({
         sessionIds: json,
-        totalVisits: json.length
+        totalVisits: json.length,
+        metricsById: {}
       });
     })
     // .then(() => this.processMetrics())
@@ -176,10 +192,10 @@ class Body extends Component {
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
             <Accordion.Toggle style={{ padding: '2px' }} as={Button} variant="link" eventKey={index.toString()} onClick={() => this.fetchMetricsForId(item.session_id)}>
-              {/* <Badge variant="primary" className="event-count">{}</Badge> */}
-              {moment(item.ts).utcOffset(-8).format('YYYY-MM-DD hh:mm A')}
+              <Badge variant="primary" className="event-count">{item.event_count}</Badge>
+              {moment(item.ts).utcOffset(-8).format('MMM D, YYYY')}
             </Accordion.Toggle>
-            <div className="time">{item.session_id}</div>
+            <div className="session-id">{item.session_id}</div>
           </Card.Header>
           <Accordion.Collapse eventKey={index.toString()}>
             <ListGroup>{this.renderEvents(item.session_id)}</ListGroup>
@@ -196,7 +212,7 @@ class Body extends Component {
     const { events } = this.state.metricsById[session_id];
 
     return events.map((item, index) => {
-      const newDate = moment(item.ts).utcOffset(-8).format("YYYY-MM-DD hh:mm A");
+      const newDate = moment(item.ts).utcOffset(-8).format("YYYY-MM-DD, h:mm A");
       const eventArray = item.event_type.split('=');
       let eventType = '';
       let eventTarget = '';
@@ -223,6 +239,23 @@ class Body extends Component {
         <ListGroup.Item key={index}>
           <p className="event-desc">{eventType + eventTarget}: {newDate}</p>
         </ListGroup.Item> 
+      );
+    })
+  }
+
+  renderLinks() {
+    return externalLinks.map((item, index) => {
+      return (
+        <a
+          key={index}
+          href={item.link}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <Button variant="outline-secondary" className="link-item">
+            {item.label}
+          </Button>
+        </a>
       );
     })
   }
@@ -337,7 +370,7 @@ class Body extends Component {
             <Card.Body>
               <Tabs defaultActiveKey="events">
                 <Tab eventKey="events" title="Events">
-                  <div className="accordion">
+                  <div className="event-list">
                     <h4 className="event-header">
                       <Badge variant="secondary">
                         Total Visits: {this.state.totalVisits}
@@ -382,9 +415,7 @@ class Body extends Component {
                 </Tab>
                 <Tab eventKey="links" title="Links">
                   <div className="links">
-                    <a href="https://kevinchoi.dev" rel="noopener noreferrer" target="_blank">Site</a>
-                    <a href="https://github.com/Kevin0115/metrics" rel="noopener noreferrer" target="_blank">Github</a>
-                    <a href="https://customer.elephantsql.com/instance" rel="noopener noreferrer" target="_blank">Database</a>
+                    {this.renderLinks()}
                   </div>
                 </Tab>
               </Tabs>
