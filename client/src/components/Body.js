@@ -29,6 +29,10 @@ class Body extends Component {
       sessionIds: [],
       metricsById: {},
       reverseOrder: false,
+      // NEW - Chart Arrays
+      visitsByEvent: [],
+      visitsByMonth: [],
+      visitsByWeek: [],
 
       // OLD
       json: null,
@@ -53,11 +57,12 @@ class Body extends Component {
   componentDidMount() {
     this.setState({vWidth: window.innerWidth});
     this.fetchSessionIds();
+    this.fetchVisitsByEvent();
   }
 
   fetchSessionIds() {
-    fetch('https://ec2.kevnchoi.com/metric')
-    // fetch('http://localhost:8080/metric')
+    // fetch('https://ec2.kevnchoi.com/metric')
+    fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
       this.setState({
@@ -66,7 +71,6 @@ class Body extends Component {
         metricsById: {}
       });
     })
-    // .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
   }
 
@@ -75,8 +79,8 @@ class Body extends Component {
     if (id in this.state.metricsById) {
       return;
     }
-    fetch('https://ec2.kevnchoi.com/metric/' + id)
-    // fetch('http://localhost:8080/metric/' + id)
+    // fetch('https://ec2.kevnchoi.com/metric/session/' + id)
+    fetch('http://localhost:8080/metric/session/' + id)
     .then(res => res.json())
     .then(json => {
       // Make K-V pair
@@ -90,80 +94,22 @@ class Body extends Component {
         metricsById: metricsById
       });
     })
-    // .then(() => this.processMetrics())
     .catch(err => console.log('Error: ' + err));
   }
 
-  // processMetrics() {
-  //   const { json } = this.state;
-
-  //   const data = [];
-  //   const visitWeek = [];
-  //   const visitMonth = [];
-
-  //   for (let i = 0; i < json.length; i++) {
-
-  //     const currWeek = moment(json[i].events[0].timestamp).format("W/YY");
-  //     const currMonth = moment(json[i].events[0].timestamp).format("M/YY");
-  //     this.insertVisitTime(visitWeek, currWeek);
-  //     this.insertVisitTime(visitMonth, currMonth);
-
-  //     const events = json[i].events;
-  //     for (let j = 0; j < events.length; j++) {
-  //       const eventType = events[j].eventType;
-  //       const eventName = eventType.substring(eventType.indexOf('=') + 1);
-  //       this.insertEvent(data, eventName);
-  //     }
-  //   }
-
-  //   data.sort((a, b) => b.y - a.y);
-  //   this.setState({
-  //     data: data,
-  //     visitWeek: visitWeek.reverse(),
-  //     visitMonth: visitMonth.reverse()
-  //   });
-  // }
-
-  // insertEvent(data, eventType) {
-  //   if (eventType === 'sessionStart') { return; }
-  //   if (data.length === 0) {
-  //     data.push({
-  //       x: eventType,
-  //       y: 1
-  //     })
-  //   } else {
-  //     for (let i = 0; i < data.length; i++) {
-  //       if (data[i].x === eventType) {
-  //         data[i].y = data[i].y + 1;
-  //         return;
-  //       }
-  //     }
-  //     data.push({
-  //       x: eventType,
-  //       y: 1
-  //     })
-  //   }
-  // }
-
-  // insertVisitTime(array, time) {
-  //   if (array.length === 0) {
-  //     array.push({
-  //       x: time,
-  //       y: 1
-  //     })
-  //   } else {
-  //     for (let i = 0; i < array.length; i++) {
-  //       if (array[i].x === time) {
-  //         array[i].y = array[i].y + 1;
-  //         return
-  //       }
-  //     }
-  //     array.push({
-  //       x: time,
-  //       y: 1
-  //     })
-  //   }
-  // }
+  fetchVisitsByEvent() {
+    // fetch('https://ec2.kevnchoi.com/metric/chart')
+    fetch('http://localhost:8080/metric/chart')
+    .then(res => res.json())
+    .then(json => {
+      this.setState({
+        visitsByEvent: json.event_count,
+        visitsByMonth: json.month_count,
+        visitsByWeek: json.week_count,
+      });
+    })
+    .catch(err => console.log('Error: ' + err));
+  }
 
   reverseOrder() {
     this.setState({
@@ -261,46 +207,46 @@ class Body extends Component {
   }
 
   renderChart() {
-    if (!this.state.json) {
+    if (!this.state.visitsByEvent) {
       return null;
     }
     return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+      <XYPlot margin={{bottom: 80}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
         <VerticalGridLines />
         <HorizontalGridLines />
         <YAxis />
-        <XAxis tickLabelAngle={-50}/>
-        <VerticalBarSeries data={this.state.data} />
+        <XAxis tickLabelAngle={-45}/>
+        <VerticalBarSeries data={this.state.visitsByEvent} />
       </XYPlot>
     );
   }
 
   renderVisitsByMonth() {
-    if (!this.state.json) {
+    if (!this.state.visitsByMonth) {
       return null;
     }
     return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={[0, 100]}>
         <VerticalGridLines />
         <HorizontalGridLines />
         <YAxis />
         <XAxis />
-        <LineMarkSeries data={this.state.visitMonth} />
+        <LineMarkSeries data={this.state.visitsByMonth} />
       </XYPlot>
     );
   }
 
   renderVisitsByWeek() {
-    if (!this.state.json) {
+    if (!this.state.visitsByWeek) {
       return null;
     }
     return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={[0, 50]}>
         <VerticalGridLines />
         <HorizontalGridLines />
         <YAxis />
-        <XAxis tickLabelAngle={-50}/>
-        <LineMarkSeries data={this.state.visitWeek} />
+        <XAxis/>
+        <LineMarkSeries data={this.state.visitsByWeek} />
       </XYPlot>
     );
   }

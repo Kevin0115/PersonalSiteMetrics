@@ -37,6 +37,48 @@ exports.get_metric_session_id = async (req, res) => {
   }
 }
 
+exports.get_chart_data = async(req, res) => {
+  // Rename to x and y for React-Vis compatibility
+  const count_query = {
+    text: `select substring(event_type, '[^=]*$') as x, count(session_id) as y
+            from metric
+            where event_type != 'sessionStart'
+            group by event_type
+            order by count(session_id) desc`
+  }
+
+  const month_query = {
+    text: `select to_char(ts, 'Mon YY') as x, count(session_id) as y
+            from metric
+            where event_type = 'sessionStart'
+            group by x
+            order by x`
+  }
+
+  const week_query = {
+    text: `select to_char(ts, 'W-MM-YY') as x, count(session_id) as y
+            from metric
+            where event_type = 'sessionStart'
+            group by x
+            order by x`
+  }
+
+  try {
+    const event_count = (await connection.query(count_query)).rows;
+    const month_count = (await connection.query(month_query)).rows;
+    const week_count = (await connection.query(week_query)).rows;
+
+    res.send({
+      event_count: event_count,
+      month_count: month_count,
+      week_count: week_count
+    });
+  } catch (e) {
+    console.error(e.detail);
+    res.send(e);
+  }
+}
+
 exports.post_event = async (req, res) => {
   const session_id = req.body.session_id; // Param because front-end localStorage item
   const event_type = req.body.event_type;
