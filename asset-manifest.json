@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/metrics/static/css/main.77aab6f9.chunk.css",
-    "main.js": "/metrics/static/js/main.fa55ec8c.chunk.js",
-    "main.js.map": "/metrics/static/js/main.fa55ec8c.chunk.js.map",
-    "runtime~main.js": "/metrics/static/js/runtime~main.d5cbce51.js",
-    "runtime~main.js.map": "/metrics/static/js/runtime~main.d5cbce51.js.map",
-    "static/js/2.d34c4492.chunk.js": "/metrics/static/js/2.d34c4492.chunk.js",
-    "static/js/2.d34c4492.chunk.js.map": "/metrics/static/js/2.d34c4492.chunk.js.map",
-    "index.html": "/metrics/index.html",
-    "precache-manifest.ee57b7dbde2f12aaa74f447bd6d180af.js": "/metrics/precache-manifest.ee57b7dbde2f12aaa74f447bd6d180af.js",
-    "service-worker.js": "/metrics/service-worker.js",
-    "static/css/main.77aab6f9.chunk.css.map": "/metrics/static/css/main.77aab6f9.chunk.css.map"
+    "main.css": "/PersonalSiteMetrics/static/css/main.77aab6f9.chunk.css",
+    "main.js": "/PersonalSiteMetrics/static/js/main.faa9992c.chunk.js",
+    "main.js.map": "/PersonalSiteMetrics/static/js/main.faa9992c.chunk.js.map",
+    "runtime~main.js": "/PersonalSiteMetrics/static/js/runtime~main.ee42167f.js",
+    "runtime~main.js.map": "/PersonalSiteMetrics/static/js/runtime~main.ee42167f.js.map",
+    "static/js/2.d34c4492.chunk.js": "/PersonalSiteMetrics/static/js/2.d34c4492.chunk.js",
+    "static/js/2.d34c4492.chunk.js.map": "/PersonalSiteMetrics/static/js/2.d34c4492.chunk.js.map",
+    "index.html": "/PersonalSiteMetrics/index.html",
+    "precache-manifest.67f17e19d96764e4235862353785927b.js": "/PersonalSiteMetrics/precache-manifest.67f17e19d96764e4235862353785927b.js",
+    "service-worker.js": "/PersonalSiteMetrics/service-worker.js",
+    "static/css/main.77aab6f9.chunk.css.map": "/PersonalSiteMetrics/static/css/main.77aab6f9.chunk.css.map"
   }
 }
