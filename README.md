@@ -1,7 +1,7 @@
 ## Personal Site Metrics
 
 ### What is it
-A simple UI for viewing anonymized details and history of those who view [my personal website](www.kevinchoi.dev).
+A simple UI for viewing anonymized details and history of those who view [my personal website](https://www.kevinchoi.dev).
 
 ### How does it work
 I've attached click-handlers to any clickable item of my website (that code is [here](https://github.com/Kevin0115/kevin0115.github.io))
