@@ -12,8 +12,8 @@ When someone opens my site for the first time, a Session ID is automatically ass
 ### Why did I do it
 I wanted more experience with 3 things:
 1. React Bootstrap
-2. Charts (specifically, React-vis by)
+2. Charts (specifically, React-vis)
 3. PostgreSQL (slightly more advanced queries than what I'm used to)
 
 ### Where can you view it
-## [Here!](https://www.kevinchoi.dev/metrics/)
+## [Here!](https://www.kevinchoi.dev/PersonalSiteMetrics/)
