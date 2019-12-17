@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button, Form, Tabs, Tab, Badge } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, ButtonGroup, Tabs, Tab, Badge } from 'react-bootstrap';
 import moment from 'moment';
 import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
   YAxis, XAxis, LineMarkSeries } from 'react-vis';
@@ -8,15 +8,23 @@ import '../App.css';
 const externalLinks = [
   {
     link: 'https://kevinchoi.dev',
-    label: 'Site'
+    label: 'Personal Site'
   },
   {
-    link: 'https://github.com/Kevin0115/metrics',
+    link: 'https://github.com/Kevin0115/PersonalSiteMetrics',
     label: 'Github'
   },
   {
     link: 'https://customer.elephantsql.com/instance',
     label: 'Database'
+  },
+  {
+    link: 'https://react-bootstrap.github.io/components/alerts/',
+    label: 'React Bootstrap'
+  },
+  {
+    link: 'https://uber.github.io/react-vis/',
+    label: 'React-Vis'
   }
 ];
 
@@ -33,21 +41,20 @@ class Body extends Component {
       visitsByEvent: [],
       visitsByMonth: [],
       visitsByWeek: [],
+      visitsByDay: [],
+      sortPeriod: 'Monthly',
 
       // OLD
-      json: null,
       username: '',
       password: '',
       authMessage: '',
-      data: [],
-      visitWeek: [],
-      visitMonth: [],
       vWidth: 0,
     }
     this.reverseOrder = this.reverseOrder.bind(this);
     this.renderEvents = this.renderEvents.bind(this);
     this.renderMetricsCards = this.renderMetricsCards.bind(this);
-
+    this.handleResize = this.handleResize.bind(this);
+    this.handlePeriodSelect = this.handlePeriodSelect.bind(this);
     // Auth stuff
     // this.handlePasswordChange = this.handlePasswordChange.bind(this);
     // this.handleUsernameChange = this.handleUsernameChange.bind(this);
@@ -55,14 +62,19 @@ class Body extends Component {
   }
 
   componentDidMount() {
-    this.setState({vWidth: window.innerWidth});
+    this.handleResize();
+    window.addEventListener("resize", this.handleResize);
     this.fetchSessionIds();
     this.fetchVisitsByEvent();
   }
 
+  handleResize() {
+    this.setState({vWidth: window.innerWidth});
+  }
+
   fetchSessionIds() {
-    // fetch('https://ec2.kevnchoi.com/metric')
-    fetch('http://localhost:8080/metric')
+    fetch('https://ec2.kevnchoi.com/metric')
+    // fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
       this.setState({
@@ -79,8 +91,8 @@ class Body extends Component {
     if (id in this.state.metricsById) {
       return;
     }
-    // fetch('https://ec2.kevnchoi.com/metric/session/' + id)
-    fetch('http://localhost:8080/metric/session/' + id)
+    fetch('https://ec2.kevnchoi.com/metric/session/' + id)
+    // fetch('http://localhost:8080/metric/session/' + id)
     .then(res => res.json())
     .then(json => {
       // Make K-V pair
@@ -98,14 +110,15 @@ class Body extends Component {
   }
 
   fetchVisitsByEvent() {
-    // fetch('https://ec2.kevnchoi.com/metric/chart')
-    fetch('http://localhost:8080/metric/chart')
+    fetch('https://ec2.kevnchoi.com/metric/chart')
+    // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
       this.setState({
         visitsByEvent: json.event_count,
         visitsByMonth: json.month_count,
         visitsByWeek: json.week_count,
+        visitsByDay: json.day_count,
       });
     })
     .catch(err => console.log('Error: ' + err));
@@ -211,44 +224,56 @@ class Body extends Component {
       return null;
     }
     return (
-      <XYPlot margin={{bottom: 80}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
-        <VerticalGridLines />
-        <HorizontalGridLines />
-        <YAxis />
-        <XAxis tickLabelAngle={-45}/>
-        <VerticalBarSeries data={this.state.visitsByEvent} />
-      </XYPlot>
+      <div className="chart">
+        <XYPlot margin={{bottom: 100}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <YAxis />
+          <XAxis tickLabelAngle={-45}/>
+          <VerticalBarSeries data={this.state.visitsByEvent} />
+        </XYPlot>
+      </div>
     );
   }
 
-  renderVisitsByMonth() {
-    if (!this.state.visitsByMonth) {
-      return null;
+  renderVisitsByPeriod() {
+    let data = []; // Dummy Data
+    let domain = [];
+    switch(this.state.sortPeriod) {
+      case ('Weekly') :
+        data = this.state.visitsByWeek;
+        domain = [0, this.findMax(data)];
+        break;
+      case ('Daily') :
+        data = this.state.visitsByDay;
+        domain = [0, this.findMax(data)];
+        break;
+      default :
+        data = this.state.visitsByMonth;
+        domain = [0, this.findMax(data)];
     }
+
+    if (!data) return null;
     return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={[0, 100]}>
-        <VerticalGridLines />
-        <HorizontalGridLines />
-        <YAxis />
-        <XAxis />
-        <LineMarkSeries data={this.state.visitsByMonth} />
-      </XYPlot>
+      <div className="chart">
+        <XYPlot margin={{bottom: 80}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={domain}>
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <YAxis />
+          <XAxis tickLabelAngle={-45} />
+          <LineMarkSeries data={data} />
+        </XYPlot>
+      </div>
     );
   }
+  
+  handlePeriodSelect(e) {
+    this.setState({sortPeriod: e.target.value});
+  }
 
-  renderVisitsByWeek() {
-    if (!this.state.visitsByWeek) {
-      return null;
-    }
-    return (
-      <XYPlot margin={{bottom: 60}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={[0, 50]}>
-        <VerticalGridLines />
-        <HorizontalGridLines />
-        <YAxis />
-        <XAxis/>
-        <LineMarkSeries data={this.state.visitsByWeek} />
-      </XYPlot>
-    );
+  findMax(data) {
+    if (!data) return 0;
+    return Math.max(...data.map(o => o.y), 0) * 1.3;
   }
 
   // To make login persistent, use localStorage/sessionStorage
@@ -323,14 +348,14 @@ class Body extends Component {
                       </Badge>
                       <div className="reverse">
                         <Button
-                          variant="outline-primary"
+                          variant="outline-secondary"
                           style={{ height: 30, width: 30, padding: 0 }}
                           onClick={() => this.reverseOrder()}
                         >
                           {this.renderReverseButton()}
                         </Button>
                         <Button
-                          variant="outline-primary"
+                          variant="outline-secondary"
                           style={{ height: 30, width: 30, padding: 0 }}
                           onClick={() => this.fetchSessionIds()}
                         >
@@ -350,13 +375,14 @@ class Body extends Component {
                     </Card.Title>
                     {this.renderChart()}
                     <Card.Title>
-                      Visits by Month
+                      {this.state.sortPeriod} Visits
                     </Card.Title>
-                    {this.renderVisitsByMonth()}
-                    <Card.Title>
-                      Visits by Week
-                    </Card.Title>
-                    {this.renderVisitsByWeek()}
+                    <ButtonGroup className="period-select">
+                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Monthly">Monthly</Button>
+                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Weekly">Weekly</Button>
+                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Daily">Daily</Button>
+                    </ButtonGroup>
+                    {this.renderVisitsByPeriod()}
                   </div>
                 </Tab>
                 <Tab eventKey="links" title="Links">

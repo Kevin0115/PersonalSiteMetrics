@@ -2,7 +2,7 @@
   "name": "metrics",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://kevin0115.github.io/metrics",
+  "homepage": "https://kevin0115.github.io/PersonalSiteMetrics",
   "dependencies": {
     "bootstrap": "^4.3.1",
     "react": "^16.8.6",

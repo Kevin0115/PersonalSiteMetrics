@@ -42,7 +42,8 @@
   flex-direction: row;
 }
 
-.event-list, .charts {
+.event-list, .charts, .links {
+  width: 60vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -52,12 +53,14 @@
 
 .reverse {
   display: flex;
+}
+
+.reverse > * {
   margin-left: 8px;
 }
 
-.charts, .links {
-  /* height: 55vh; */
-  width: 60vw;
+.chart {
+  margin-bottom: 48px;
 }
 
 .nav {
@@ -71,12 +74,16 @@
 .links {
   display: flex;
   flex-direction: column;
-  height: 28vh;
+  height: 48vh;
   align-items: center;
   padding: 32px;
   justify-content: space-between;
 }
 
-/* .link-item {
-  margin-bottom: 8px;
-} */
+.link-item {
+  width: 200px;
+}
+
+.period-select {
+  margin: 8px 0;
+}

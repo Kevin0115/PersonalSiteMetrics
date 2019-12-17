@@ -63,15 +63,26 @@ exports.get_chart_data = async(req, res) => {
             order by x`
   }
 
+  const day_query = {
+    text: `select to_char(ts, 'DD-MM-YY') as x, count(session_id) as y
+            from metric
+            where event_type = 'sessionStart'
+            group by x
+            order by x
+            limit 30`
+  }
+
   try {
     const event_count = (await connection.query(count_query)).rows;
     const month_count = (await connection.query(month_query)).rows;
     const week_count = (await connection.query(week_query)).rows;
+    const day_count = (await connection.query(day_query)).rows;
 
     res.send({
       event_count: event_count,
       month_count: month_count,
-      week_count: week_count
+      week_count: week_count,
+      day_count: day_count,
     });
   } catch (e) {
     console.error(e.detail);
