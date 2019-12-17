@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Accordion, Card, ListGroup, Button, ButtonGroup, Tabs, Tab, Badge } from 'react-bootstrap';
+import { Accordion, Card, ListGroup, Button, ButtonGroup, Tabs, Tab, Badge, Pagination } from 'react-bootstrap';
 import moment from 'moment';
 import { XYPlot, VerticalBarSeries, VerticalGridLines, HorizontalGridLines,
   YAxis, XAxis, LineMarkSeries } from 'react-vis';
@@ -37,6 +37,7 @@ class Body extends Component {
       sessionIds: [],
       metricsById: {},
       reverseOrder: false,
+      pageOffset: 0,
       // NEW - Chart Arrays
       visitsByEvent: [],
       visitsByMonth: [],
@@ -146,7 +147,7 @@ class Body extends Component {
     if (!this.state.sessionIds) {
       return null;
     }
-    return this.state.sessionIds.map((item, index) => {
+    return this.state.sessionIds.slice(0 + this.state.pageOffset * 20, 20 + this.state.pageOffset * 20).map((item, index) => {
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
@@ -276,6 +277,22 @@ class Body extends Component {
     return Math.max(...data.map(o => o.y), 0) * 1.3;
   }
 
+  renderPagination() {
+    if (this.state.totalVisits <= 20) return null;
+    let pages = [];
+    let pageCount = Math.ceil(this.state.totalVisits / 20);
+    pages.push(<Pagination.First key={'first'} onClick={() => this.setState({pageOffset: 0})}/>);
+    for (let i = 0; i < pageCount; i++) {
+      pages.push(
+        <Pagination.Item key={i} onClick={() => this.setState({pageOffset: i})} active={this.state.pageOffset === i}>
+          {i + 1}
+        </Pagination.Item>
+      );
+    }
+    pages.push(<Pagination.Last key={'last'} onClick={() => this.setState({pageOffset: pageCount - 1})}/>);
+    return pages;
+  }
+
   // To make login persistent, use localStorage/sessionStorage
   // handleSubmit(e) {
   //   e.preventDefault();
@@ -366,6 +383,9 @@ class Body extends Component {
                     <Accordion>
                       {this.renderMetricsCards()}
                     </Accordion>
+                    <Pagination className="pagination">
+                      {this.renderPagination()}
+                    </Pagination>
                   </div>
                 </Tab>
                 <Tab eventKey="charts" title="Charts">
@@ -378,9 +398,18 @@ class Body extends Component {
                       {this.state.sortPeriod} Visits
                     </Card.Title>
                     <ButtonGroup className="period-select">
-                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Monthly">Monthly</Button>
-                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Weekly">Weekly</Button>
-                      <Button variant="secondary" onClick={this.handlePeriodSelect} value="Daily">Daily</Button>
+                      <Button
+                        variant={this.state.sortPeriod === "Monthly" ? "primary" : "secondary"}
+                        onClick={this.handlePeriodSelect}
+                        value="Monthly">Monthly</Button>
+                      <Button
+                        variant={this.state.sortPeriod === "Weekly" ? "primary" : "secondary"}
+                        onClick={this.handlePeriodSelect}
+                        value="Weekly">Weekly</Button>
+                      <Button
+                        variant={this.state.sortPeriod === "Daily" ? "primary" : "secondary"}
+                        onClick={this.handlePeriodSelect}
+                        value="Daily">Daily</Button>
                     </ButtonGroup>
                     {this.renderVisitsByPeriod()}
                   </div>
