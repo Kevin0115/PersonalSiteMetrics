@@ -147,7 +147,7 @@ class Body extends Component {
     if (!this.state.sessionIds) {
       return null;
     }
-    return this.state.sessionIds.slice(0 + this.state.pageOffset * 20, 20 + this.state.pageOffset * 20).map((item, index) => {
+    return this.state.sessionIds.slice(0 + this.state.pageOffset * 10, 10 + this.state.pageOffset * 10).map((item, index) => {
       return (
         <Card bg="light" style={{ width: '60vw' }} key={index}>
           <Card.Header className="header" style={{ height: '36px', padding: '2px 4px' }}>
@@ -226,7 +226,7 @@ class Body extends Component {
     }
     return (
       <div className="chart">
-        <XYPlot margin={{bottom: 100}} xType="ordinal" height={300} width={this.state.vWidth / 2}>
+        <XYPlot margin={{bottom: 100, top: 32}} xType="ordinal" height={300} width={this.state.vWidth / 1.8}>
           <VerticalGridLines />
           <HorizontalGridLines />
           <YAxis />
@@ -238,7 +238,7 @@ class Body extends Component {
   }
 
   renderVisitsByPeriod() {
-    let data = []; // Dummy Data
+    let data = [];
     let domain = [];
     switch(this.state.sortPeriod) {
       case ('Weekly') :
@@ -257,7 +257,7 @@ class Body extends Component {
     if (!data) return null;
     return (
       <div className="chart">
-        <XYPlot margin={{bottom: 80}} xType="ordinal" height={300} width={this.state.vWidth / 2} yDomain={domain}>
+        <XYPlot margin={{bottom: 56, top: 32}} xType="ordinal" height={300} width={this.state.vWidth / 1.8} yDomain={domain}>
           <VerticalGridLines />
           <HorizontalGridLines />
           <YAxis />
@@ -278,9 +278,9 @@ class Body extends Component {
   }
 
   renderPagination() {
-    if (this.state.totalVisits <= 20) return null;
+    if (this.state.totalVisits <= 10) return null;
     let pages = [];
-    let pageCount = Math.ceil(this.state.totalVisits / 20);
+    let pageCount = Math.ceil(this.state.totalVisits / 10);
     pages.push(<Pagination.First key={'first'} onClick={() => this.setState({pageOffset: 0})}/>);
     for (let i = 0; i < pageCount; i++) {
       pages.push(
@@ -388,12 +388,16 @@ class Body extends Component {
                     </Pagination>
                   </div>
                 </Tab>
-                <Tab eventKey="charts" title="Charts">
+                <Tab eventKey="event-chart" title="Chart (Events)">
                   <div className="charts">
                     <Card.Title>
                       Visits by Event Type
                     </Card.Title>
                     {this.renderChart()}
+                  </div>
+                </Tab>
+                <Tab eventKey="period-chart" title="Chart (Time)">
+                  <div className="charts">
                     <Card.Title>
                       {this.state.sortPeriod} Visits
                     </Card.Title>
