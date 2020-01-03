@@ -224,9 +224,10 @@ class Body extends Component {
     if (!this.state.visitsByEvent) {
       return null;
     }
+    let domain = [0, this.findMax(this.state.visitsByEvent)];
     return (
       <div className="chart">
-        <XYPlot margin={{bottom: 100, top: 32}} xType="ordinal" height={300} width={this.state.vWidth / 1.8}>
+        <XYPlot margin={{bottom: 100, top: 32}} xType="ordinal" height={400} width={this.state.vWidth / 1.8} yDomain={domain}>
           <VerticalGridLines />
           <HorizontalGridLines />
           <YAxis />
@@ -257,7 +258,7 @@ class Body extends Component {
     if (!data) return null;
     return (
       <div className="chart">
-        <XYPlot margin={{bottom: 56, top: 32}} xType="ordinal" height={300} width={this.state.vWidth / 1.8} yDomain={domain}>
+        <XYPlot margin={{bottom: 56, top: 32}} xType="ordinal" height={360} width={this.state.vWidth / 1.8} yDomain={domain}>
           <VerticalGridLines />
           <HorizontalGridLines />
           <YAxis />
@@ -274,7 +275,7 @@ class Body extends Component {
 
   findMax(data) {
     if (!data) return 0;
-    return Math.max(...data.map(o => o.y), 0) * 1.3;
+    return Math.max(...data.map(o => o.y), 0) * 1.25;
   }
 
   renderPagination() {
