@@ -115,17 +115,18 @@ class Body extends Component {
     // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
-      console.log(json);
+      console.log(json.month_count);
       this.setState({
         visitsByEvent: json.event_count,
-        visitsByMonth: this.truncateDate(json.month_count),
-        visitsByWeek: this.truncateDate(json.week_count),
-        visitsByDay: this.truncateDate(json.day_count),
+        visitsByMonth: json.month_count,
+        visitsByWeek: json.week_count,
+        visitsByDay: json.day_count,
       });
     })
     .catch(err => console.log('Error: ' + err));
   }
 
+  // Unused - Use if sorting by ts
   truncateDate(ts) {
     if (!ts) return [];
     for (let i = 0; i < ts.length; i++) {
