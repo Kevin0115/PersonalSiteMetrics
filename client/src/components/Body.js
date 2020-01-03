@@ -115,14 +115,25 @@ class Body extends Component {
     // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
+      console.log(json);
       this.setState({
         visitsByEvent: json.event_count,
-        visitsByMonth: json.month_count,
-        visitsByWeek: json.week_count,
-        visitsByDay: json.day_count,
+        visitsByMonth: this.truncateDate(json.month_count),
+        visitsByWeek: this.truncateDate(json.week_count),
+        visitsByDay: this.truncateDate(json.day_count),
       });
     })
     .catch(err => console.log('Error: ' + err));
+  }
+
+  truncateDate(ts) {
+    if (!ts) return [];
+    for (let i = 0; i < ts.length; i++) {
+      console.log(ts[i].x);
+      ts[i].x = ts[i].x.substring(0, ts[i].x.indexOf('T'));
+    }
+    console.log(ts);
+    return ts;
   }
 
   reverseOrder() {

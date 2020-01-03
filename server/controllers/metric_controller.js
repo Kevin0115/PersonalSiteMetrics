@@ -48,30 +48,28 @@ exports.get_chart_data = async(req, res) => {
   }
 
   const month_query = {
-    text: `select to_date(to_char(ts at time zone 'utc' at time zone 'PST', 'Mon YY'), 'Mon YY') as x, count(session_id) as y
+    text: `select to_char(ts at time zone 'utc' at time zone 'PST', 'Mon YY') as x, count(session_id) as y
             from metric
             where event_type = 'sessionStart'
             group by x
-            order by x
-            limit 10`
+            order by x`
   }
 
   const week_query = {
-    text: `select to_date(to_char(ts at time zone 'utc' at time zone 'PST', 'W-MM-YY'), 'W-MM-YY') as x, count(session_id) as y
+    text: `select to_char(ts at time zone 'utc' at time zone 'PST', 'W-MM-YY') as x, count(session_id) as y
             from metric
             where event_type = 'sessionStart'
             group by x
-            order by x
-            limit 10`
+            order by x`
   }
 
   const day_query = {
-    text: `select to_date(to_char(ts at time zone 'utc' at time zone 'PST', 'DD-MM-YY'), 'DD-MM-YY') as x, count(session_id) as y
+    text: `select to_char(ts at time zone 'utc' at time zone 'PST', 'DD-MM-YY') as x, count(session_id) as y
             from metric
             where event_type = 'sessionStart'
             group by x
             order by x
-            limit 10`
+            limit 30`
   }
 
   try {
