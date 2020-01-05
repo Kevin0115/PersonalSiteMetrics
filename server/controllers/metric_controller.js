@@ -52,7 +52,8 @@ exports.get_chart_data = async(req, res) => {
             from metric
             where event_type = 'sessionStart'
             group by x
-            order by x`
+            order by x
+            limit 12`
   }
 
   const week_query = {
@@ -60,7 +61,8 @@ exports.get_chart_data = async(req, res) => {
             from metric
             where event_type = 'sessionStart'
             group by x
-            order by x`
+            order by x
+            limit 8`
   }
 
   const day_query = {

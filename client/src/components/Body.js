@@ -118,23 +118,28 @@ class Body extends Component {
       console.log(json.month_count);
       this.setState({
         visitsByEvent: json.event_count,
-        visitsByMonth: json.month_count,
-        visitsByWeek: json.week_count,
-        visitsByDay: json.day_count,
+        visitsByMonth: this.sortMonthlyArray(json.month_count),
+        visitsByWeek: this.sortPeriodArray(json.week_count),
+        visitsByDay: this.sortPeriodArray(json.day_count),
       });
     })
     .catch(err => console.log('Error: ' + err));
   }
 
-  // Unused - Use if sorting by ts
-  truncateDate(ts) {
-    if (!ts) return [];
-    for (let i = 0; i < ts.length; i++) {
-      console.log(ts[i].x);
-      ts[i].x = ts[i].x.substring(0, ts[i].x.indexOf('T'));
-    }
-    console.log(ts);
-    return ts;
+  // Desc sort weekly and daily arrays
+  sortPeriodArray(data) {
+    if (!data) return [];
+    return data.sort((a, b) => {
+      return new Date(moment(a.x, 'DD-MM-YY')) - new Date(moment(b.x, 'DD-MM-YY'));
+    });
+  }
+
+  // Desc sort months
+  sortMonthlyArray(data) {
+    if (!data) return [];
+    return data.sort((a, b) => {
+      return new Date(moment(a.x, 'MMM-YYYY')) - new Date(moment(b.x, 'MMM-YYYY'));
+    })
   }
 
   reverseOrder() {
@@ -295,13 +300,21 @@ class Body extends Component {
     let pages = [];
     let pageCount = Math.ceil(this.state.totalVisits / 10);
     pages.push(<Pagination.First key={'first'} onClick={() => this.setState({pageOffset: 0})}/>);
+    pages.push(<Pagination.Prev key={'prev'} onClick={() => this.setState({pageOffset: Math.max(this.state.pageOffset - 1, 0)})}/>);
     for (let i = 0; i < pageCount; i++) {
+      if (i > 2 && i < pageCount - 1) {
+        pages.push(
+          <Pagination.Ellipsis />
+        );
+        i = pageCount - 1;
+      }
       pages.push(
         <Pagination.Item key={i} onClick={() => this.setState({pageOffset: i})} active={this.state.pageOffset === i}>
           {i + 1}
         </Pagination.Item>
       );
     }
+    pages.push(<Pagination.Next key={'next'} onClick={() => this.setState({pageOffset: Math.min(this.state.pageOffset + 1, pageCount - 1)})}/>);
     pages.push(<Pagination.Last key={'last'} onClick={() => this.setState({pageOffset: pageCount - 1})}/>);
     return pages;
   }
