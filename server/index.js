@@ -23,7 +23,7 @@ var metric = require('./routes/metric');
 
 // Declare application parameters
 // Will have to change this if moving to a VM
-var HTTP_PORT = 8080;
+var HTTP_PORT = 80;
 
 // Routes
 app.use('/', express.static(STATIC_ROOT));

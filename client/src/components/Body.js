@@ -74,7 +74,7 @@ class Body extends Component {
   }
 
   fetchSessionIds() {
-    fetch('https://ec2.kevnchoi.com/metric')
+    fetch('https://personalsitemetrics.openode.io/metric')
     // fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
@@ -92,7 +92,7 @@ class Body extends Component {
     if (id in this.state.metricsById) {
       return;
     }
-    fetch('https://ec2.kevnchoi.com/metric/session/' + id)
+    fetch('https://personalsitemetrics.openode.io/metric/session/' + id)
     // fetch('http://localhost:8080/metric/session/' + id)
     .then(res => res.json())
     .then(json => {
@@ -111,7 +111,7 @@ class Body extends Component {
   }
 
   fetchVisitsByEvent() {
-    fetch('https://ec2.kevnchoi.com/metric/chart')
+    fetch('https://personalsitemetrics.openode.io/metric/chart')
     // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
