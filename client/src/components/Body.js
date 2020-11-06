@@ -74,7 +74,7 @@ class Body extends Component {
   }
 
   fetchSessionIds() {
-    fetch('https://personalsitemetrics.openode.io/metric')
+    fetch('https://personalsitemetrics.vercel.app/metric')
     // fetch('http://localhost:8080/metric')
     .then(res => res.json())
     .then(json => {
@@ -92,7 +92,7 @@ class Body extends Component {
     if (id in this.state.metricsById) {
       return;
     }
-    fetch('https://personalsitemetrics.openode.io/metric/session/' + id)
+    fetch('https://personalsitemetrics.vercel.app/metric/session/' + id)
     // fetch('http://localhost:8080/metric/session/' + id)
     .then(res => res.json())
     .then(json => {
@@ -111,7 +111,7 @@ class Body extends Component {
   }
 
   fetchVisitsByEvent() {
-    fetch('https://personalsitemetrics.openode.io/metric/chart')
+    fetch('https://personalsitemetrics.vercel.app/metric/chart')
     // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
