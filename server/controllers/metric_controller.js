@@ -1,5 +1,6 @@
 const connection = require('../config/db_config');
 const moment = require('moment');
+const fetch = require('node-fetch');
 
 exports.get_session_ids = async (req, res) => {
   const session_query = {
@@ -95,18 +96,39 @@ exports.get_chart_data = async(req, res) => {
 exports.post_event = async (req, res) => {
   const session_id = req.body.session_id; // Param because front-end localStorage item
   const event_type = req.body.event_type;
-  const ts = moment.utc(); // Generate on the spot **UTC**
-  insert_query = {
-    text: `insert into metric
-            values ($1, $2, $3)`,
-    values: [session_id, event_type, ts]
-  }
+  const inlink = req.body.inlink;
 
-  try {
-    const insert = (await connection.query(insert_query)).rows;
-    res.send(insert_query.values);
-  } catch (e) {
-    console.error(e.detail);
-    res.send(e);
-  }
+  // Get IP address
+  const forwarded = req.headers['x-forwarded-for']
+  const ip = forwarded ? forwarded.split(/, /)[0] : req.connection.remoteAddress;
+
+  fetch('https://api.hackertarget.com/geoip/?q=' + ip)
+  .then(res => res.text())
+  .then(text => {
+    console.log(text);
+    // Format the location
+    const rows = text.split('\n').map(row => row.split(': '));
+    console.log(rows);
+    let location = 'unknown';
+   
+    try {
+      location = rows[3][1] + ', ' + rows[2][1] + ', ' + rows[1][1];
+    } catch(e) {
+      console.log("Too bad, couldn't do it")
+      location = 'unknown'
+    }
+
+    const ts = moment.utc(); // Generate on the spot **UTC**
+    return {
+      text: `insert into metric
+              values ($1, $2, $3, $4, $5)`,
+      values: [session_id, event_type, ts, inlink, location]
+    }
+  })
+  .then(insert_query => {
+    (connection.query(insert_query)).rows;
+    return insert_query.values;
+  })
+  .then(values => res.send(values))
+  .catch(err => console.log(err))
 }

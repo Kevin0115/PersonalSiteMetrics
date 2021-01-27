@@ -110,12 +110,21 @@ class Body extends Component {
     .catch(err => console.log('Error: ' + err));
   }
 
+  fetchLocationForIP(ip) {
+    fetch('https://api.hackertarget.com/geoip/?q=' + ip)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.split('\n').map(lines => lines.split(': '));
+      console.log(rows);
+    })
+  }
+
   fetchVisitsByEvent() {
     fetch('https://personalsitemetrics.vercel.app/metric/chart')
     // fetch('http://localhost:8080/metric/chart')
     .then(res => res.json())
     .then(json => {
-      console.log(json.month_count);
+      // console.log(json.month_count);
       this.setState({
         visitsByEvent: json.event_count,
         visitsByMonth: this.sortMonthlyArray(json.month_count),
@@ -191,6 +200,15 @@ class Body extends Component {
     return events.map((item, index) => {
       const newDate = moment(item.ts).utcOffset(-8).format("YYYY-MM-DD, h:mm A");
       const eventArray = item.event_type.split('=');
+      let inlink = '';
+      let location = '';
+      if (item.inlink !== null && item.inlink !== '') {
+        inlink = 'Visited from: ' + (new URL(item.inlink)).hostname;
+      }
+      if (item.location != null) {
+        location = item.location;
+      }
+      console.log(location);
       let eventType = '';
       let eventTarget = '';
       
@@ -215,6 +233,8 @@ class Body extends Component {
       return(
         <ListGroup.Item key={index}>
           <p className="event-desc">{eventType + eventTarget}: {newDate}</p>
+          <p className="event-desc">{inlink}</p>
+          <p className="event-desc">{eventType === 'Started Session' ? location : null}</p>
         </ListGroup.Item> 
       );
     })
@@ -304,7 +324,7 @@ class Body extends Component {
     for (let i = 0; i < pageCount; i++) {
       if (i > 2 && i < pageCount - 1) {
         pages.push(
-          <Pagination.Ellipsis />
+          <Pagination.Ellipsis key={i} />
         );
         i = pageCount - 1;
       }

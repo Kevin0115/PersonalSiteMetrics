@@ -4,6 +4,8 @@ create table metric(
   session_id integer not null,
   event_type varchar(50) not null,
   ts timestamp not null,
+  inlink varchar(50),
+  location varchar(50),
   primary key (session_id, event_type, ts)
 );
 
